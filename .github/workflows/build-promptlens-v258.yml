@@ -1,0 +1,57 @@
+name: Build PromptLens V2.5.8
+
+on:
+  push:
+    branches:
+      - promptlens-v258
+    paths:
+      - scripts/apply-v258.js
+      - scripts/package-v258.js
+      - .github/workflows/build-promptlens-v258.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out editable source branch
+        uses: actions/checkout@v4
+        with:
+          ref: promptlens-v258
+          fetch-depth: 0
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: source/package-lock.json
+
+      - name: Apply V2.5.8 feature patch
+        run: node scripts/apply-v258.js
+
+      - name: Install dependencies
+        working-directory: source
+        run: npm install --no-audit --no-fund
+
+      - name: Run production build
+        working-directory: source
+        run: npm run build
+
+      - name: Package verified Vercel release
+        run: node scripts/package-v258.js
+
+      - name: Remove build-only folders
+        run: rm -rf source/node_modules source/.next
+
+      - name: Commit verified V2.5.8 source and release assets
+        run: |
+          git config user.name "PromptLens Release Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add source promptlens-v2-5-8
+          git diff --cached --quiet && exit 0
+          git commit -m "Build PromptLens V2.5.8 multi-shot prompt packs"
+          git push origin HEAD:promptlens-v258
