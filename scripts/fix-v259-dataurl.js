@@ -1,0 +1,10 @@
+const fs = require('fs');
+const path = require('path');
+const file = path.join(process.cwd(), 'source/src/app/api/analyse/route.ts');
+let text = fs.readFileSync(file, 'utf8');
+const search = 'image_url: exactShotImage.dataUrl, detail: "high"';
+const replacement = 'image_url: exactShotImage.dataUrl!, detail: "high"';
+if (!text.includes(search)) throw new Error('V2.5.9 exact shot data URL target not found.');
+text = text.replace(search, replacement);
+fs.writeFileSync(file, text);
+console.log('Applied V2.5.9 exact shot data URL assertion.');
