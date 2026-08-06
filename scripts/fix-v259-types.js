@@ -1,0 +1,12 @@
+const fs = require('fs');
+const path = require('path');
+const file = path.join(process.cwd(), 'source/src/app/api/analyse/route.ts');
+let text = fs.readFileSync(file, 'utf8');
+const guard = '      if (!shotImage?.dataUrl) throw new Error("The independent series shot did not include a usable source image.");\n\n      function buildIndependentPayload() {';
+const replacement = '      if (!shotImage?.dataUrl) throw new Error("The independent series shot did not include a usable source image.");\n      const exactShotImage = shotImage;\n\n      function buildIndependentPayload() {';
+if (!text.includes(guard)) throw new Error('V2.5.9 shot-image type guard target not found.');
+text = text.replace(guard, replacement);
+text = text.replaceAll('shotImage.name || "series shot"', 'exactShotImage.name || "series shot"');
+text = text.replaceAll('shotImage.dataUrl!', 'exactShotImage.dataUrl');
+fs.writeFileSync(file, text);
+console.log('Applied V2.5.9 exact shot image type narrowing.');
