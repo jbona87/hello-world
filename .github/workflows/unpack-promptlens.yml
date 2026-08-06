@@ -1,0 +1,40 @@
+name: Unpack PromptLens source
+
+on:
+  push:
+    branches:
+      - promptlens-v258
+    paths:
+      - scripts/unpack-promptlens.js
+      - .github/workflows/unpack-promptlens.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  unpack:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out release branch
+        uses: actions/checkout@v4
+        with:
+          ref: promptlens-v258
+          fetch-depth: 0
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Unpack verified source bundle
+        run: node scripts/unpack-promptlens.js
+
+      - name: Commit editable source
+        run: |
+          git config user.name "PromptLens Release Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add source
+          git diff --cached --quiet && exit 0
+          git commit -m "Unpack PromptLens V2.5.7 source"
+          git push origin HEAD:promptlens-v258
