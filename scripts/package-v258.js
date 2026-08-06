@@ -40,3 +40,5 @@ const manifest = {
 fs.writeFileSync(path.join(out, 'manifest.json'), JSON.stringify(manifest, null, 2) + '\n');
 fs.writeFileSync(path.join(root, '.v258-ready'), `PromptLens V2.5.8 build passed; ${manifest.fileCount} files; ${manifest.chunks.length} chunks; ${manifest.checksum}\n`);
 console.log(manifest);
+
+// Follow-up commit intentionally triggers the V2.5.8 build workflow.
